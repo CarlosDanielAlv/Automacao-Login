@@ -1,27 +1,36 @@
 import pytest
 from selenium.webdriver.common.by import By
 import conftest
+from pages.carrinho_page import CartPage
+from pages.home_page import HomePage
+from pages.login_page import LoginPage
 
 
 @pytest.mark.usefixtures("setup_teardown")
 @pytest.mark.adicionar_produtos_carrinho
 class TestCT01:
         def test_ct01_adicionar_produtos_carrinho(self):
-                driver = conftest.driver
-                driver.find_element(By.ID, 'user-name').send_keys('standard_user')
-                driver.find_element(By.ID, 'password').send_keys('secret_sauce')
-                driver.find_element(By.ID, 'login-button').click()
-                assert driver.find_element(By.XPATH, '//span[@class="title"]').is_displayed()
+                login_page = LoginPage()
+                home_page = HomePage()
+                cart_page = CartPage()
 
-                driver.find_element(By.XPATH, '//div[@class="inventory_item_name " and text()="Sauce Labs Backpack"]').click()
-                driver.find_element(By.XPATH, '//button[@class="btn btn_primary btn_small btn_inventory"]').click()
-                driver.find_element(By.XPATH, '//*[@class="shopping_cart_link"]').click()
-                assert (driver.find_element(By.XPATH, '//div[@class="inventory_item_name" and text()="Sauce Labs Backpack"]')
-                        .is_displayed())
+                login_page.login('standard_user', 'secret_sauce')
+                home_page.verify_login_success()
 
-                driver.find_element(By.ID, 'continue-shopping').click()
-                driver.find_element(By.XPATH, '//div[@class="inventory_item_name " and text()="Sauce Labs Bike Light"]').click()
-                driver.find_element(By.XPATH, '//button[@class="btn btn_primary btn_small btn_inventory"]').click()
-                driver.find_element(By.XPATH, '//*[@class="shopping_cart_link"]').click()
-                assert (driver.find_element(By.XPATH, '//div[@class="inventory_item_name" and text()="Sauce Labs Bike Light"]')
-                        .is_displayed())
+                # Adicionar mochila ao carrinho
+                home_page.add_cart("Sauce Labs Backpack")
+                # Acessar carrtinho
+                home_page.cart_access()
+                # Verificar se mochila foi adicionada
+                cart_page.verify_cart_product("Sauce Labs Backpack")
+                # Clicar para voltar tela de produtos
+                cart_page.continue_buy()
+
+                # Adicionar mochila ao carrinho
+                home_page.add_cart("Sauce Labs Bike Light")
+                # Acessar carrtinho
+                home_page.cart_access()
+                # Verificar se mochila foi adicionada
+                cart_page.verify_cart_product("Sauce Labs Bike Light")
+                # Clicar para voltar tela de produtos
+                cart_page.continue_buy()
